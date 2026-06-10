@@ -1,4 +1,4 @@
-# 🎸 Rise of the Shadows - Sitio Web Oficial
+# 🎸 Rise of the Shadows - Sitio Web Fan
 
 Aplicación web moderna y responsiva para la banda **Rise of the Shadows**, desarrollada con **Vue 3** y **Vite**. Cuenta con una integración automatizada para mostrar las últimas publicaciones de Instagram de forma limpia y estilizada, utilizando una arquitectura Serverless.
 
