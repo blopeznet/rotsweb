@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  --shadow-red: #ff003c;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #09090b;
+}
+
