@@ -65,7 +65,7 @@ const props = defineProps({
   },
   albumName: {
     type: String,
-    default: "Emerging from wounds (2025)",
+    default: "The Abyss (2025)",
   },
   spotifyUrl: {
     type: String,
