@@ -49,10 +49,17 @@
         <article class="card card--youtube">
           <div class="card__head">
             <h3>YouTube</h3>
-            <span>Playlist oficial</span>
+            <a v-if="socialSettings.youtubePlaylistId" 
+               :href="`https://www.youtube.com/playlist?list=${socialSettings.youtubePlaylistId}`" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="card__link">
+              Ver lista completa ↗
+            </a>
+            <span v-else>Playlist oficial</span>
           </div>
           <iframe v-if="socialSettings.youtubePlaylistId" class="player player--youtube"
-            :src="`https://www.youtube.com/embed/videoseries?list=${socialSettings.youtubePlaylistId}&showsearch=0`"
+            :src="`https://www.youtube.com/embed/videoseries?list=${socialSettings.youtubePlaylistId}&controls=1&modestbranding=1&rel=0`"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen loading="lazy" />
         </article>
@@ -232,6 +239,18 @@ onMounted(async () => {
   opacity: 0.9;
 }
 
+.card__link {
+  color: #ff4444;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+.card__link:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+
 .player {
   width: 100%;
   border: 0;
@@ -246,7 +265,7 @@ onMounted(async () => {
 
 .player--youtube {
   flex: 1;
-  min-height: 380px;
+  min-height: 450px;
   aspect-ratio: 16 / 9;
 }
 
@@ -272,9 +291,12 @@ onMounted(async () => {
     padding: 0.9rem 1rem;
   }
 
-  .player--spotify,
-  .player--youtube {
+  .player--spotify {
     min-height: 320px;
+  }
+
+  .player--youtube {
+    min-height: 360px;
   }
 }
 </style>
