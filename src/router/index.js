@@ -15,16 +15,20 @@ const routes = [
   }
 ]
 
+// index.js
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  // Esto asegura que el scroll funcione correctamente al usar anclas (#)
   scrollBehavior(to, from, savedPosition) {
     if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: 'smooth',
-      }
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            el: to.hash,
+            behavior: 'smooth',
+          })
+        }, 300) // Evita que falle si el DOM aún no se ha dibujado al volver de segundo plano
+      })
     }
     return { top: 0 }
   }
