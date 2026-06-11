@@ -4,7 +4,11 @@
       <h2>Próximos Conciertos</h2>
       <p class="tour-subtitle">¡No te quedes sin tu lugar! Asegura tus entradas para los siguientes shows.</p>
 
-      <div class="tour__list">
+      <div v-if="loading" class="tour__loading">
+        <p>Cargando fechas de la gira...</p>
+      </div>
+
+      <div v-else-if="concerts.length > 0" class="tour__list">
         <div v-for="(c, i) in concerts" :key="i" class="tour__item">
           <div class="tour__info">
             <span class="tour__date">{{ formatDate(c.date) }}</span>
@@ -14,130 +18,185 @@
             </div>
           </div>
 
-          <a :href="c.tickets" target="_blank" class="btn-tickets">
-            Comprar Entradas
+          <a 
+            :href="c.tickets && c.tickets !== '#' ? c.tickets : '#contact'" 
+            target="_blank" 
+            class="btn-tickets"
+            :class="{ 'btn-tickets--contact': !c.tickets || c.tickets === '#' }"
+          >
+            {{ c.tickets && c.tickets !== '#' ? 'Comprar Entradas' : 'Más Info / Reservar' }}
           </a>
         </div>
+      </div>
+
+      <div v-else class="tour__empty">
+        <p>Próximamente anunciaremos nuevas fechas del tour. ¡Mantente atento!</p>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-defineProps({
-  concerts: {
-    type: Array,
-    default: () => [
-      {
-        city: "Madrid",
-        venue: "Sala Nazca",
-        date: "2026-09-12",
-        tickets: "#",
-      },
-      {
-        city: "Barcelona",
-        venue: "Razzmatazz",
-        date: "2026-10-05",
-        tickets: "#",
-      }
-    ],
-  },
+import { ref, onMounted } from 'vue'
+
+const concerts = ref([])
+const loading = ref(true)
+
+onMounted(async () => {
+  try {
+    // Llamamos al endpoint común autogestionado
+    const response = await fetch('/api/manage')
+    if (!response.ok) throw new Error('Error al cargar las fechas del tour')
+    
+    const data = await response.json()
+    concerts.value = data.concerts || []
+  } catch (e) {
+    console.error("Error obteniendo conciertos desde Tour.vue:", e)
+  } finally {
+    loading.value = false
+  }
 })
 
 const formatDate = (date) => {
-  // Añadimos 'UTC' explícito o reemplazamos guiones para evitar problemas de desfase de días en zonas horarias al usar strings
-  const dateObj = new Date(date.replace(/-/g, '\/'));
-  return dateObj.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-  }).replace('.', ''); // Quitamos el punto que a veces añade 'short' en español (ej: "sep.")
+  if (!date) return ''
+  // Reemplazamos guiones por barras para normalizar el comportamiento entre navegadores y evitar desajustes de zona horaria
+  const normalizedDate = date.replace(/-/g, '/')
+  const options = { day: '2-digit', month: 'short' }
+  
+  try {
+    const d = new Date(normalizedDate)
+    const formatted = d.toLocaleDateString('es-ES', options).toUpperCase()
+    // Limpiamos el punto que a veces añade 'es-ES' en los meses cortos (ej: 'AGO.')
+    return formatted.replace('.', '')
+  } catch (e) {
+    return date
+  }
 }
 </script>
 
 <style scoped>
+/* --- Estilos base del componente Tour --- */
 .tour {
-  padding: 4rem 1.5rem; /* Padding lateral ideal para pantallas móviles */
+  background: #000;
   color: white;
-  display: flex;
-  justify-content: center;
+  padding: 5rem 1.5rem;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .tour-container {
-  width: 100%;
-  max-width: 800px; /* Ancho máximo para que las filas no se vean infinitas en PC */
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-h2 {
-  font-size: 2.2rem;
+.tour h2 {
+  font-size: 2.5rem;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
   margin-bottom: 0.5rem;
+  color: #fff;
+  font-weight: 800;
 }
 
 .tour-subtitle {
-  color: #aaa;
   text-align: center;
-  margin-bottom: 2.5rem;
-  font-size: 1rem;
+  color: #888;
+  margin-bottom: 3.5rem;
+  font-size: 1.1rem;
 }
 
+/* --- Estados de carga y vacío --- */
+.tour__loading,
+.tour__empty {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  border: 1px dashed #222;
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+
+/* --- Lista de Conciertos --- */
 .tour__list {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
 .tour__item {
-  display: flex;
-  flex-direction: column; /* Por defecto en móvil: todo en columna */
-  gap: 1.2rem;
-  padding: 1.5rem;
-  background-color: rgba(255, 255, 255, 0.03); /* Fondo sutil para enmarcar el evento */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
   border-radius: 12px;
-  text-align: center;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  gap: 1.5rem;
+  text-align: center;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.tour__item:hover {
+  border-color: #ff0000; /* Detalle infernal/metalero en hover */
+  transform: scale(1.01);
 }
 
 .tour__info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
   width: 100%;
 }
 
 .tour__date {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  font-weight: bold;
-  color: #ff0000; /* Resalta la fecha con el color de tu marca */
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ff0000;
   letter-spacing: 1px;
+  line-height: 1;
 }
 
 .tour__place h3 {
   font-size: 1.4rem;
-  margin: 0 0 0.2rem 0;
+  margin: 0 0 0.3rem 0;
+  font-weight: 700;
 }
 
 .tour__place p {
-  color: #ccc;
+  color: #aaaaaa;
   margin: 0;
   font-size: 1rem;
 }
 
+/* --- Botón de entradas --- */
 .btn-tickets {
   background: #ff0000;
   color: white;
   padding: 0.9rem 1.5rem;
-  border-radius: 8px; /* Cambiado a 8px para hacer juego con los inputs del componente Contacto */
+  border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
   font-size: 0.95rem;
-  width: 100%; /* Botón ancho en móvil, fácil de pulsar */
+  width: 100%;
   box-sizing: border-box;
   text-align: center;
   transition: background 0.3s ease, transform 0.1s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-tickets:hover {
+  background: #cc0000;
+}
+
+.btn-tickets--contact {
+  background: #222;
+  border: 1px solid #444;
+}
+
+.btn-tickets--contact:hover {
+  background: #333;
+  border-color: #666;
 }
 
 /* 🖥️ MEDIA QUERY: Ajustes para pantallas grandes (Tablets y PC) */
@@ -150,34 +209,19 @@ h2 {
   }
 
   .tour__info {
-    flex-direction: row; /* La fecha y el lugar se ponen de lado */
+    flex-direction: row; /* La fecha y el lugar se ponen en línea */
     align-items: center;
-    gap: 2.5rem;
+    gap: 3rem;
     width: auto;
   }
 
   .tour__date {
-    font-size: 1.05rem;
-    min-width: 110px; /* Evita que la fecha altere el alineamiento de la fila */
+    min-width: 110px; /* Evita que el texto de la fecha haga saltos de línea */
   }
 
   .btn-tickets {
-    width: auto; /* El botón recupera su tamaño original en PC */
-    padding: 0.8rem 1.8rem;
-  }
-
-  /* Efectos Hover solo funcionales en pantallas con ratón (PC) */
-  .tour__item:hover {
-    border-color: rgba(255, 0, 0, 0.4);
-    transform: translateY(-2px);
-  }
-
-  .btn-tickets:hover {
-    background: #cc0000;
-  }
-
-  .btn-tickets:active {
-    transform: scale(0.97);
+    width: auto; /* El botón recupera su tamaño contenido en PC */
+    padding: 0.8rem 2rem;
   }
 }
 </style>

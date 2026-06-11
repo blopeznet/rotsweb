@@ -117,9 +117,15 @@ const gameStore = useGameStore()
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 3rem 1rem 4rem;
+  padding: 1rem 0.5rem 2rem;
   background: #0a0a0a;
   font-family: 'Press Start 2P', monospace;
+}
+
+@media (min-width: 640px) {
+  .arcade-section {
+    padding: 3rem 1rem 4rem;
+  }
 }
 
 /* ─── Cabinet wrapper ─────────────────────────────── */
@@ -190,10 +196,16 @@ const gameStore = useGameStore()
   border: 4px solid #222;
   border-top: none;
   border-radius: 0 0 16px 16px;
-  padding: 1rem 1.5rem 1.5rem;
+  padding: 0.5rem 0.5rem 0.75rem;
   box-shadow:
     0 0 40px rgba(255,0,60,0.2),
     inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+@media (min-width: 640px) {
+  .bezel {
+    padding: 1rem 1.5rem 1.5rem;
+  }
 }
 
 /* ─── HUD ─────────────────────────────────────────── */
@@ -256,8 +268,8 @@ const gameStore = useGameStore()
   position: relative;
   z-index: 1;
   background: #000;
-  min-height: 200px;
-  height: 500px;
+  /* Sin altura fija: el canvas escalado determina la altura del contenedor */
+  min-height: 120px;
 }
 
 /* ─── Overlays START / GAME OVER ────────────────── */

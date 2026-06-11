@@ -4,14 +4,14 @@ export const useGameStore = defineStore('game', {
   state: () => ({
     score: 0,
     highScore: Number(localStorage.getItem('rots-highscore')) || 0,
-    lives: 20,
+    lives: 6,
     gameState: 'START'
   }),
 
   actions: {
     startGame() {
       this.score = 0
-      this.lives = 20
+      this.lives = 6
       this.gameState = 'PLAYING'
     },
 
