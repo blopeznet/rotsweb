@@ -43,7 +43,6 @@
             <div v-if="post.media_url" class="newspaper-card__image-wrapper">
               <img :src="post.media_url" :alt="post.title" class="newspaper-card__img" loading="lazy" />
             </div>
-            <p class="newspaper-card__snippet">{{ post.content }}</p>
           </div>
 
           <div class="newspaper-card__footer">
